@@ -38,16 +38,20 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept {
 }
 
 //Window Stuff
-Window::Window(int width, int height, const wchar_t* name) {
+Window::Window(int width, int height, const wchar_t* name) :
+	width(width),
+	height(height)
+
+{
 	//Calculate window size based on desired client region size
 	RECT wr;
 	wr.left = 100;
 	wr.right = width + wr.left;
 	wr.top = 100;
 	wr.bottom = height + wr.top;
-	if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE))) {
+	if (!AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)) {
 		throw CHWND_LAST_EXCEPT();
-	};
+	}
 	
 	//Create window and get hWnd
 	hWnd = CreateWindow(
@@ -67,6 +71,12 @@ Window::Window(int width, int height, const wchar_t* name) {
 
 Window::~Window() {
 	DestroyWindow(hWnd);
+}
+
+void Window::SetTitle(const std::string& title) {
+	if (SetWindowTextA(hWnd, title.c_str()) == 0) {
+		throw CHWND_LAST_EXCEPT();
+	}
 }
 
 //checking to see if the message type is equal to non client create 
@@ -105,7 +115,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)  no
 		return 0;
 	
 	//********KEYBOARD MESSAGES********
-	case WM_KEYDOWN:
+		//system commands need to be handled to track ALT Key (VK_MENU)
+	case WM_SYSKEYDOWN:
 		kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
 		break;
 	case WM_KEYUP:
@@ -113,8 +124,62 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)  no
 			kbd.OnKeyRelease(static_cast<unsigned char>(wParam));
 		}
 		break;
-	case WM_CHAR:
+	case WM_SYSKEYUP:
 		kbd.OnChar(static_cast<unsigned char>(wParam));
+		break;
+	/*********** END KEYBOARD MESSAGES ************/
+
+	/*********** MOUSE MESSAGES ******************/
+	case WM_MOUSEMOVE: {
+		POINTS pt = MAKEPOINTS(lParam);
+		//in client region -> log move, and log enter + capture mouse
+		if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height) {
+			mouse.OnMouseMove(pt.x, pt.y);
+			if (!mouse.IsInWindow()) {
+				SetCapture(hWnd);
+				mouse.OnMouseEnter();
+			}
+		}
+		//not in client -> log move / maintain capture if button down
+		else {
+			if (wParam & (MK_LBUTTON | MK_RBUTTON)) {
+				mouse.OnMouseMove(pt.x, pt.y);
+			}
+			//button up -> release capture / log event for leaving
+			else {
+				ReleaseCapture();
+				mouse.OnMouseLeave();
+			}
+		}
+	}
+	case WM_LBUTTONDOWN: {
+		const POINTS pt = MAKEPOINTS(lParam);
+		mouse.OnLeftPressed(pt.x, pt.y);
+		break;
+	}
+	case WM_RBUTTONDOWN: {
+		const POINTS pt = MAKEPOINTS (lParam);
+		mouse.OnRightPressed(pt.x, pt.y);
+		break;
+	}
+	case WM_LBUTTONUP: {
+		const POINTS pt = MAKEPOINTS(lParam);
+		mouse.OnLeftReleased(pt.x, pt.y);
+		break;
+	}
+	case WM_RBUTTONUP: {
+		const POINTS pt = MAKEPOINTS(lParam);
+		mouse.OnRightReleased(pt.x, pt.y);
+		break;
+	}
+	case WM_MOUSEWHEEL: {
+		const POINTS pt = MAKEPOINTS(lParam);
+		const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+		mouse.OnWheelDelta(pt.x, pt.y, delta);
+
+		break;
+	/*************** END MOUSE MESSAGES**************/
+	}
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -151,7 +216,7 @@ std::string Window::Except::TranslateErrorCode(HRESULT hr) noexcept {
 	if (nMsgLen == 0) {
 		return "Unidentified error code";
 	}
-	std::string errorString = pMsgBuf;
+	std::string errorString =  pMsgBuf;
 	LocalFree(pMsgBuf);
 	return errorString;
 }
