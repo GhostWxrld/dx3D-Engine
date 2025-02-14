@@ -79,6 +79,24 @@ void Window::SetTitle(const std::string& title) {
 	}
 }
 
+std::optional<int> Window::ProcessMessages() {
+	MSG msg;
+	//while queue has messages, remove and dispatch them (but do not block 
+	while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		//Check for quit because peekmessages does not signal this via return
+		if (msg.message == WM_QUIT) {
+			//return optional wrapping int (arg to PostQuitMessage is in wParam)
+			return msg.wParam;
+		}
+
+		//TranslateMessage will post auxilliary WM_CHAR messages from key msg
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	//return empty optional when not quitting app
+	return {};
+}
+
 //checking to see if the message type is equal to non client create 
 // and if so then BS is happening if not then do default
 LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
