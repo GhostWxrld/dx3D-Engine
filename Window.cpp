@@ -65,8 +65,11 @@ Window::Window(int width, int height, const wchar_t* name) :
 		throw CHWND_LAST_EXCEPT();
 	}
 
-	//Show window
+	//newly created window starts off as hidden
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
+
+	//Create Graphics Object
+	pGfx = std::make_unique<Graphics>(hWnd);
 }
 
 Window::~Window() {
@@ -89,12 +92,17 @@ std::optional<int> Window::ProcessMessages() {
 			return msg.wParam;
 		}
 
-		//TranslateMessage will post auxilliary WM_CHAR messages from key msg
+		//TranslateMessage will post auxiliary WM_CHAR messages from key msg
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 	//return empty optional when not quitting app
 	return {};
+}
+
+Graphics& Window::Gfx()
+{
+	return *pGfx;
 }
 
 //checking to see if the message type is equal to non client create 

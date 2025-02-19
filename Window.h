@@ -3,7 +3,9 @@
 #include "Exception.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Graphics.h"
 #include <optional>
+#include <memory>
 
 class Window{
 public:
@@ -41,6 +43,7 @@ public:
 	Window& operator = (const Window&) = delete;
 	void SetTitle(const std::string& title);
 	static std::optional<int> ProcessMessages();
+	Graphics& Gfx();
 
 private:
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -50,12 +53,13 @@ private:
 public:
 	Keyboard kbd;
 	Mouse mouse;
+	
 
 private:
 	int width;
 	int height; 
 	HWND hWnd;
-
+	std::unique_ptr<Graphics> pGfx;
 };
 
 //error exception helping macro
