@@ -2,6 +2,8 @@
 #include "dxerr.h"
 #include <sstream>
 
+namespace wrl = Microsoft::WRL;
+
 #pragma comment(lib, "d3d11.lib")	//Will work on any machine so best way to link 
 
 //graphics exception checking/throwing macros
@@ -66,38 +68,13 @@ Graphics::Graphics(HWND hWnd) {
 	));
 
 	//Gain access to the sub resource in swap chain (back buffer)
-	ID3D11Resource* pBackBuffer = nullptr;
-	GFX_THROW_INFO(pSwap->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
+	wrl::ComPtr<ID3D11Resource> pBackBuffer = nullptr;
+	GFX_THROW_INFO(pSwap->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer));
 	GFX_THROW_INFO(pDevice->CreateRenderTargetView(
-		nullptr, 
+		pBackBuffer.Get(),
 		nullptr, 
 		&pTarget
 	));
-	pBackBuffer->Release();
-}
-
-Graphics::~Graphics(){
-
-	//Order doesn't matter but I like to keep it minor devices first before parent devices
-	if (pTarget != nullptr) {
-		pTarget->Release();
-		pTarget = nullptr;
-	}
-
-	if (pContext != nullptr) {
-		pContext->Release();
-		pContext = nullptr;
-	}
-
-	if (pSwap != nullptr) {
-		pSwap->Release();
-		pSwap = nullptr;
-	}
-
-	if (pDevice != nullptr) {
-		pDevice->Release();
-		pDevice = nullptr;
-	}
 }
 
 void Graphics::EndFrame(){
@@ -118,7 +95,7 @@ void Graphics::EndFrame(){
 
 void Graphics::ClearBuffer(float red, float green, float blue) noexcept {
 	const float color[] = { red, green, blue, 1.0f };
-	pContext->ClearRenderTargetView(pTarget, color);
+	pContext->ClearRenderTargetView(pTarget.Get(), color);
 }
 
 //Graphics exception stuff 

@@ -53,7 +53,7 @@
     <ClInclude Include="WindowsMessageMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChiliWin.h">
+    <ClInclude Include="Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
