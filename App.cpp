@@ -1,7 +1,7 @@
 #include "App.h"
 
 App::App() :
-	wnd(800, 800, L"Dx11 Engine")
+	wnd(1920, 1080, L"Dx11 Engine")
 {}
 
 int App::Go() {
@@ -18,5 +18,7 @@ int App::Go() {
 void App::DoFrame() {
 	const float c = sin(timer.Peek()) / 2.0f + 0.5f;								//Sin wave color effect
 	wnd.Gfx().ClearBuffer(c, c, 1.0f);												
+	wnd.Gfx().DrawTestTriangle();
 	wnd.Gfx().EndFrame();															//We are currently presenting a frame
+
 }

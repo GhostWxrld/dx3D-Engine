@@ -26,6 +26,17 @@ public:
 		HRESULT hr;
 		std::string info;
 	};
+
+	class InfoException : public Exception {
+	public:
+		InfoException(int line, const char* file, std::vector<std::string>& infoMsgs) noexcept;
+		const char* what() const noexcept override;
+		const char* GetType() const noexcept override;
+		std::string GetErrorInfo() const noexcept;
+	private:
+		std::string info;
+	};
+
 	class DeviceRemovedException : public HrException {									// Specialized exception
 		using HrException::HrException;
 	public:
@@ -41,15 +52,16 @@ public:
 	~Graphics() = default;
 	void EndFrame();
 	void ClearBuffer(float red, float green, float blue) noexcept;
+	void DrawTestTriangle();
 
 private:
 #ifndef NDEBUG
 	DxgiInfoManager infoManager;
 #endif // !NDEBUG
 
-	Microsoft::WRL::ComPtr<ID3D11Device> pDevice = nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwap = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwap;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
 };
 
