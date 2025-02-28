@@ -4,7 +4,7 @@ struct VSOut{
 };
 
 cbuffer CBuf {
-    row_major matrix transform;                                           //The word matrix means float4x4
+     matrix transform;                                           //The word matrix means float4x4
 };
 
 VSOut main(float2 pos : Position, float3 color : Color){
