@@ -1,0 +1,3 @@
+This is what if left to do:
+
+Fix the Cube not showing up: Shader -> Binding Issue.
