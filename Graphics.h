@@ -5,15 +5,19 @@
 #include <wrl.h>
 #include <vector>
 #include "DxgiInfoManager.h"
+#include <DirectXMath.h>
+#include <memory>
+#include <random>
 
 class Graphics{
+	friend class Bindable;
 
 public:
 	class ErrorExcept : public Exception {
 		using Exception::Exception;
 	};
 	class HrException : public Exception {
-	public:
+	public: 
 		HrException(int line, const char* file, HRESULT hr, std::vector<std::string>infoMsgs = {}) noexcept;
 		const char* what() const noexcept override;
 		const char* GetType() const noexcept override;
@@ -52,9 +56,16 @@ public:
 	~Graphics() = default;
 	void EndFrame();
 	void ClearBuffer(float red, float green, float blue) noexcept;
-	void DrawTestTriangle(float angle, float x, float y);
+	void DrawIndexed(UINT count) noexcept(!IS_DEBUG); 
+	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
+	DirectX::XMMATRIX GetProjection() const noexcept;
+	UINT GetWidth() const noexcept;
+	UINT GetHeight() const noexcept;
 
 private:
+	UINT width;
+	UINT height;
+	DirectX::XMMATRIX projection;
 #ifndef NDEBUG
 	DxgiInfoManager infoManager;
 #endif // !NDEBUG

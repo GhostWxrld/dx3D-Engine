@@ -1,3 +1,8 @@
-This is what if left to do:
+Error Checking will be done here:
+Reporting of errors:
 
-Fix the Cube not showing up: Shader -> Binding Issue.
+//1.)
+//2.)
+//3.)
+//...In this similar pattern
+
