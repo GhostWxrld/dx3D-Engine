@@ -39,8 +39,3 @@ Planned Features:
     UI system
     
     Audio support
-
-
-First Draw Milestone:
-https://github.com/user-attachments/assets/6e2f6026-4627-4b34-af74-1416c48e1233
-
