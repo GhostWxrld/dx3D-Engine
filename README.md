@@ -9,6 +9,7 @@ Renders multiple cubes based on user input.
 Implements a simple DirectX 11 rendering pipeline.
 
 Provides a foundational understanding of DirectX 11 concepts such as buffers, shaders, and rendering loops.
+
 --------------------------------------------
 Purpose:
 
@@ -19,6 +20,7 @@ Understand how DirectX 11 handles rendering.
 Experiment with buffers, shaders, and basic transformations.
 
 Serve as a stepping stone for more complex graphics programming projects.
+
 --------------------------------------------
 Requirements:
 
@@ -27,6 +29,7 @@ Windows OS
 Visual Studio (recommended for compiling)
 
 DirectX 11 SDK
+
 --------------------------------------------
 How to Use:
 
